@@ -425,11 +425,11 @@ public class ChunkMcRegion extends MCRChunk {
             // if slab or stairs, use max light value from neighboring blocks (except facing down)
             if (block_id == 44 || block_id == 53 || block_id == 67) {
                 if (this.blockLight.data.length > 0) {
-                    int lightxminus = blockLight.getData(x-1, y, z);
-                    int lightxplus = blockLight.getData(x+1, y, z);
-                    int lightzminus = blockLight.getData(x, y, z-1);
-                    int lightzplus = blockLight.getData(x, y, z+1);
-                    int lightyplus = blockLight.getData(x, y+1, z);
+                    int lightxminus = ((ChunkMcRegion) this.world.getChunkAtBlock(x-1, y, z)).section.blockLight.getData(x-1, y, z);
+                    int lightxplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x+1, y, z)).section.blockLight.getData(x+1, y, z);
+                    int lightzminus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y, z-1)).section.blockLight.getData(x, y, z-1);
+                    int lightzplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y, z+1)).section.blockLight.getData(x, y, z+1);
+                    int lightyplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y+1, z)).section.blockLight.getData(x, y+1, z);
                     
                     blocklight = NumberUtils.max(lightxminus, lightxplus, lightzminus, lightzplus, lightyplus);
                 }

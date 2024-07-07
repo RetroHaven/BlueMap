@@ -424,15 +424,19 @@ public class ChunkMcRegion extends MCRChunk {
             
             // if slab or stairs, use max light value from neighboring blocks (except facing down)
             if (block_id == 44 || block_id == 53 || block_id == 67) {
-                if (this.blockLight.data.length > 0) {
-                    int lightxminus = ((ChunkMcRegion) this.world.getChunkAtBlock(x-1, y, z)).section.blockLight.getData(x-1, y, z);
-                    int lightxplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x+1, y, z)).section.blockLight.getData(x+1, y, z);
-                    int lightzminus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y, z-1)).section.blockLight.getData(x, y, z-1);
-                    int lightzplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y, z+1)).section.blockLight.getData(x, y, z+1);
-                    int lightyplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y+1, z)).section.blockLight.getData(x, y+1, z);
-                    
-                    blocklight = NumberUtils.max(lightxminus, lightxplus, lightzminus, lightzplus, lightyplus);
-                }
+
+                ChunkMcRegion chunkxminus = ((ChunkMcRegion) this.world.getChunkAtBlock(x-1, y, z));
+                ChunkMcRegion chunkxplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x+1, y, z));
+                ChunkMcRegion chunkzminus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y, z-1));
+                ChunkMcRegion chunkzplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y, z+1));
+                ChunkMcRegion chunkyplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y+1, z));
+                int lightxminus = chunkxminus.section.blockLight.data.length > 0 ? chunkxminus.section.blockLight.getData(x-1, y, z) : 0;
+                int lightxplus = chunkxplus.section.blockLight.data.length > 0 ? chunkxplus.section.blockLight.getData(x+1, y, z) : 0;
+                int lightzminus = chunkzminus.section.blockLight.data.length > 0 ? chunkzminus.section.blockLight.getData(x, y, z-1) : 0;
+                int lightzplus = chunkzplus.section.blockLight.data.length > 0 ? chunkzplus.section.blockLight.getData(x, y, z+1) : 0;
+                int lightyplus = chunkyplus.section.blockLight.data.length > 0 ? chunkyplus.section.blockLight.getData(x, y+1, z) : 0;
+
+                blocklight = NumberUtils.max(lightxminus, lightxplus, lightzminus, lightzplus, lightyplus);
             }
 
             return target.set(

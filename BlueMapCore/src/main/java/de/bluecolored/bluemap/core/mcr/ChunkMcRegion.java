@@ -27,6 +27,8 @@ package de.bluecolored.bluemap.core.mcr;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import de.bluecolored.bluemap.core.world.BlockState;
 import de.bluecolored.bluemap.core.world.LightData;
 import net.querz.nbt.CompoundTag;
@@ -420,9 +422,18 @@ public class ChunkMcRegion extends MCRChunk {
             
             int block_id = this.blocks[x << 11 | z << 7 | y] & 255;
             
-            // if slab or stairs, force light value to 7 (otherwise it looks weird)
-            if (block_id == 44 || block_id == 53 || block_id == 67)
-            	blocklight = 7;
+            // if slab or stairs, use max light value from neighboring blocks (except facing down)
+            if (block_id == 44 || block_id == 53 || block_id == 67) {
+                if (this.blockLight.data.length > 0) {
+                    int lightxminus = blockLight.getData(x-1, y, z);
+                    int lightxplus = blockLight.getData(x+1, y, z);
+                    int lightzminus = blockLight.getData(x, y, z-1);
+                    int lightzplus = blockLight.getData(x, y, z+1);
+                    int lightyplus = blockLight.getData(x, y+1, z);
+                    
+                    blocklight = NumberUtils.max(lightxminus, lightxplus, lightzminus, lightzplus, lightyplus);
+                }
+            }
 
             return target.set(
                     this.skyLight.data.length > 0 ? skyLight.getData(x, y, z) : 0,

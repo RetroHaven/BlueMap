@@ -40,10 +40,6 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -52,7 +48,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listener {
+public class BukkitPlugin extends JavaPlugin implements ServerInterface {
 
     private static BukkitPlugin instance;
 
@@ -100,8 +96,11 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
         }
 
         //register events
-        getServer().getPluginManager().registerEvents(this, this);
-        getServer().getPluginManager().registerEvents(eventForwarder, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, new BukkitPlayerListener(), Event.Priority.Monitor, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, new BukkitPlayerListener(), Event.Priority.Monitor, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, new EventForwarder(), Event.Priority.Monitor, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, new EventForwarder(), Event.Priority.Monitor, this);
+        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_CHAT, new EventForwarder(), Event.Priority.Monitor, this);
 
         //register commands
         try {
@@ -117,14 +116,11 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
             Logger.global.logError("Failed to register commands!", e);
         }
 
-        //tab completions
-        getServer().getPluginManager().registerEvents(commands, this);
-
         //update online-player collections
         this.onlinePlayerList.clear();
         this.onlinePlayerMap.clear();
         for (org.bukkit.entity.Player player : getServer().getOnlinePlayers()) {
-            BukkitPlayer bukkitPlayer = new BukkitPlayer(player.getUniqueId());
+            BukkitPlayer bukkitPlayer = new BukkitPlayer(player.getUniqueId(), player.getName());
             onlinePlayerMap.put(player.getUniqueId(), bukkitPlayer);
             onlinePlayerList.add(bukkitPlayer);
         }
@@ -174,7 +170,7 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
     @Override
     public Collection<ServerWorld> getLoadedWorlds() {
         Collection<ServerWorld> loadedWorlds = new ArrayList<>(3);
-        for (World world : Bukkit.getWorlds()) {
+        for (World world : Bukkit.getServer().getWorlds()) {
             loadedWorlds.add(worlds.get(world));
         }
         return loadedWorlds;
@@ -186,17 +182,17 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
             return getWorld((Path) world);
 
         if (world instanceof String) {
-            var serverWorld = Bukkit.getWorld((String) world);
+            var serverWorld = Bukkit.getServer().getWorld((String) world);
             if (serverWorld != null) world = serverWorld;
         }
 
         if (world instanceof String) {
-            var serverWorld = Bukkit.getWorld(new Key((String) world).getValue());
+            var serverWorld = Bukkit.getServer().getWorld(new Key((String) world).getValue());
             if (serverWorld != null) world = serverWorld;
         }
 
         if (world instanceof UUID) {
-            var serverWorld = Bukkit.getWorld((UUID) world);
+            var serverWorld = Bukkit.getServer().getWorld((UUID) world);
             if (serverWorld != null) world = serverWorld;
         }
 
@@ -228,25 +224,17 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
         return instance;
     }
 
-    @EventHandler(priority = Event.Priority.Monitor, ignoreCancelled = true)
-    public void onPlayerJoin(PlayerJoinEvent evt) {
-        BukkitPlayer player = new BukkitPlayer(evt.getPlayer().getUniqueId());
-        onlinePlayerMap.put(evt.getPlayer().getUniqueId(), player);
-        onlinePlayerList.add(player);
-    }
-
-    @EventHandler(priority = Event.Priority.Monitor, ignoreCancelled = true)
-    public void onPlayerLeave(PlayerQuitEvent evt) {
-        UUID playerUUID = evt.getPlayer().getUniqueId();
-        onlinePlayerMap.remove(playerUUID);
-        synchronized (onlinePlayerList) {
-            onlinePlayerList.removeIf(p -> p.getUuid().equals(playerUUID));
-        }
-    }
-
     @Override
     public Collection<Player> getOnlinePlayers() {
         return onlinePlayerMap.values();
+    }
+
+    public Collection<BukkitPlayer> getOnlinePlayerList() {
+        return onlinePlayerList;
+    }
+
+    public Map<UUID, Player> getOnlinePlayerMap() {
+        return onlinePlayerMap;
     }
 
     @Override

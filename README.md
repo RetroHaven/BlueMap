@@ -1,8 +1,8 @@
 ## Forked to support Minecraft Beta 1.7.3's McRegion map format
 Original project can be found [here](https://github.com/BlueMap-Minecraft/BlueMap)
 
-## Currently supported methods: CLI and Poseidon (Bukkit)
-Download Project Poseidon [here](https://github.com/RhysB/Project-Poseidon)
+## Currently supported methods: CLI and Bukkit (CB1060 and Poseidon)
+Make sure to use the `bukkit` build only if you're using original CB1060. If you're using [Project Poseidon](https://github.com/RhysB/Project-Poseidon), choose the `poseidon` build.
 
 ## To get the Beta look:
 

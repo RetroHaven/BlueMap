@@ -92,7 +92,7 @@ public class BukkitWorld implements ServerWorld {
         if (delegateWorld == null) return false;
 
         try {
-            return Bukkit.getScheduler().callSyncMethod(BukkitPlugin.getInstance(), () -> {
+            return Bukkit.getServer().getScheduler().callSyncMethod(BukkitPlugin.getInstance(), () -> {
                 delegateWorld.save();
                 return true;
             }).get();

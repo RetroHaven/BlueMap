@@ -29,23 +29,15 @@ import de.bluecolored.bluemap.common.serverinterface.Gamemode;
 import de.bluecolored.bluemap.common.serverinterface.Player;
 import de.bluecolored.bluemap.common.plugin.text.Text;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 
 import java.io.IOException;
-import java.util.EnumMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class BukkitPlayer implements Player {
 
-    private static final Map<GameMode, Gamemode> GAMEMODE_MAP = new EnumMap<>(GameMode.class);
-    static {
-        GAMEMODE_MAP.put(GameMode.SURVIVAL, Gamemode.SURVIVAL);
-        GAMEMODE_MAP.put(GameMode.CREATIVE, Gamemode.CREATIVE);
-    }
-
     private final UUID uuid;
+    private final String playerName;
     private Text name;
     private String world;
     private Vector3d position;
@@ -58,8 +50,9 @@ public class BukkitPlayer implements Player {
     private boolean vanished;
     private Gamemode gamemode;
 
-    public BukkitPlayer(UUID playerUUID) {
-        this.uuid = playerUUID;
+    public BukkitPlayer(UUID uuid, String playerName) {
+        this.uuid = uuid;
+        this.playerName = playerName;
         update();
     }
 
@@ -127,14 +120,13 @@ public class BukkitPlayer implements Player {
      * API access, only call on server thread!
      */
     public void update() {
-        org.bukkit.entity.Player player = Bukkit.getServer().getPlayer(uuid);
+        org.bukkit.entity.Player player = Bukkit.getServer().getPlayer(this.playerName);
         if (player == null) {
             this.online = false;
             return;
         }
 
-        this.gamemode = GAMEMODE_MAP.get(GameMode.SURVIVAL);
-        if (this.gamemode == null) this.gamemode = Gamemode.SURVIVAL;
+        this.gamemode = Gamemode.SURVIVAL;
 
         this.invisible = this.vanished = false; // TODO add support for vanish;
 

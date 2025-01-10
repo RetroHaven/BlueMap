@@ -26,12 +26,6 @@ repositories {
 	maven {
 		setUrl("https://oss.sonatype.org/content/repositories/snapshots")
 	}
-	maven {
-		setUrl("https://repository.johnymuffin.com/repository/maven-public")
-	}
-		maven {
-		setUrl("https://repository.johnymuffin.com/repository/maven-snapshots")
-	}
 }
 
 dependencies {
@@ -41,8 +35,8 @@ dependencies {
 		exclude( group = "com.google.code.gson", module = "gson" )
 	}
 
-	shadow ("com.legacyminecraft.poseidon:poseidon-craftbukkit:1.1.8")
-	implementation ("org.bstats:bstats-bukkit:2.2.1")
+	shadow (fileTree("libs"))
+	implementation ("com.google.code.gson:gson:2.11.0")
 
 	testImplementation ("org.junit.jupiter:junit-jupiter:5.8.2")
 	testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:5.8.2")
@@ -89,6 +83,7 @@ tasks.shadowJar {
 	archiveFileName.set("BlueMap-${project.version}-${project.name}.jar")
 
 	//relocate ("com.flowpowered.math", "de.bluecolored.shadow.flowpowered.math") //DON"T relocate this, because the API depends on it
+	relocate ("com.google.code.gson", "de.bluecolored.shadow.google.gson")
 	relocate ("com.typesafe.config", "de.bluecolored.shadow.typesafe.config")
 	relocate ("net.querz.nbt", "de.bluecolored.shadow.querz.nbt")
 	relocate ("org.spongepowered.configurate", "de.bluecolored.shadow.configurate")

@@ -51,7 +51,7 @@ public class BukkitCommandSource implements CommandSource {
 
     @Override
     public void sendMessage(Text text) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(BukkitPlugin.getInstance(), () -> {
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(BukkitPlugin.getInstance(), () -> {
             if (delegate instanceof Player) {
                 Player player = (Player) delegate;
                 player.sendMessage(ChatColor.GRAY + text.toPlainString());

@@ -29,6 +29,7 @@ import de.bluecolored.bluemap.common.serverinterface.ServerWorld;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.file.Files;
@@ -44,13 +45,13 @@ public class BukkitWorld implements ServerWorld {
     public BukkitWorld(World delegate) {
         this.delegate = new WeakReference<>(delegate);
         Dimension dimension = getDimension();
-        Path saveFolder = delegate.getWorldFolder().toPath()
+        Path saveFolder = new File(delegate.getName()).toPath()
                 .resolve(dimension.getDimensionSubPath())
                 .toAbsolutePath().normalize();
 
         // fix for hybrids
         if (!Files.exists(saveFolder)) {
-            Path direct = delegate.getWorldFolder().toPath();
+            Path direct = new File(delegate.getName()).toPath();
             if (Files.exists(direct) && direct.endsWith(dimension.getDimensionSubPath()))
                 saveFolder = direct;
         }
@@ -63,7 +64,6 @@ public class BukkitWorld implements ServerWorld {
         World world = delegate.get();
         if (world != null) {
             if (world.getEnvironment().equals(World.Environment.NETHER)) return Dimension.NETHER;
-            if (world.getEnvironment().equals(World.Environment.THE_END)) return Dimension.END;
         }
         return Dimension.OVERWORLD;
     }

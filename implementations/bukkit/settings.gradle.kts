@@ -1,3 +1,3 @@
-rootProject.name = "spigot"
+rootProject.name = "bukkit"
 
 includeBuild("../../BlueMapCommon")

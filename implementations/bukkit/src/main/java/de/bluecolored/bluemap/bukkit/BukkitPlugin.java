@@ -35,13 +35,12 @@ import de.bluecolored.bluemap.core.BlueMap;
 import de.bluecolored.bluemap.core.MinecraftVersion;
 import de.bluecolored.bluemap.core.logger.Logger;
 import de.bluecolored.bluemap.core.util.Key;
-import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
-import org.bukkit.command.defaults.BukkitCommand;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -52,8 +51,6 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listener {
 
@@ -72,19 +69,10 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
 
     public BukkitPlugin() {
         Logger.global.clear();
-        Logger.global.put(new JavaLogger(getLogger()));
+        Logger.global.put(new JavaLogger(java.util.logging.Logger.getLogger("Minecraft")));
 
         //try to get best matching minecraft-version
-        MinecraftVersion version = MinecraftVersion.LATEST_SUPPORTED;
-        try {
-            String versionString = getServer().getBukkitVersion();
-            Matcher versionMatcher = Pattern.compile("(\\d+(?:\\.\\d+){1,2})[-_].*").matcher(versionString);
-            if (!versionMatcher.matches()) throw new IllegalArgumentException();
-            version = MinecraftVersion.of(versionMatcher.group(1));
-        } catch (IllegalArgumentException e) {
-            Logger.global.logWarning("Failed to detect the minecraft version of this server! Using latest version: " + version.getVersionString());
-        }
-        this.minecraftVersion = version;
+        this.minecraftVersion = MinecraftVersion.LATEST_SUPPORTED;
 
         this.onlinePlayerMap = new ConcurrentHashMap<>();
         this.onlinePlayerList = Collections.synchronizedList(new ArrayList<>());
@@ -122,7 +110,7 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
             bukkitCommandMap.setAccessible(true);
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(Bukkit.getServer());
 
-            for (BukkitCommand command : commands.getRootCommands()) {
+            for (Command command : commands.getRootCommands()) {
                 commandMap.register(command.getLabel(), command);
             }
         } catch(NoSuchFieldException | SecurityException | IllegalAccessException e) {
@@ -142,14 +130,14 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
         }
 
         //load bluemap
-        getServer().getScheduler().runTaskAsynchronously(this, () -> {
+        getServer().getScheduler().scheduleAsyncDelayedTask(this, () -> {
             try {
                 Logger.global.logInfo("Loading...");
                 this.pluginInstance.load();
                 if (pluginInstance.isLoaded()) Logger.global.logInfo("Loaded!");
 
                 //start updating players
-                getServer().getScheduler().runTaskTimer(this, this::updateSomePlayers, 1, 1);
+                getServer().getScheduler().scheduleSyncRepeatingTask(this, this::updateSomePlayers, 1, 1);
             } catch (IOException | RuntimeException e) {
                 Logger.global.logError("Failed to load!", e);
                 this.pluginInstance.unload();
@@ -157,7 +145,7 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
         });
 
         //bstats
-        new Metrics(this, 5912);
+        //new Metrics(this, 5912);
     }
 
     @Override
@@ -240,14 +228,14 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
         return instance;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = Event.Priority.Monitor, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent evt) {
         BukkitPlayer player = new BukkitPlayer(evt.getPlayer().getUniqueId());
         onlinePlayerMap.put(evt.getPlayer().getUniqueId(), player);
         onlinePlayerList.add(player);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = Event.Priority.Monitor, ignoreCancelled = true)
     public void onPlayerLeave(PlayerQuitEvent evt) {
         UUID playerUUID = evt.getPlayer().getUniqueId();
         onlinePlayerMap.remove(playerUUID);

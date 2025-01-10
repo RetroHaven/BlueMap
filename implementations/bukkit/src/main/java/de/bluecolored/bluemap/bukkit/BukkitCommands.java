@@ -26,27 +26,16 @@ package de.bluecolored.bluemap.bukkit;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.suggestion.Suggestion;
-import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.tree.CommandNode;
 import de.bluecolored.bluemap.common.plugin.Plugin;
 import de.bluecolored.bluemap.common.plugin.commands.Commands;
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.RemoteConsoleCommandSender;
-import org.bukkit.command.defaults.BukkitCommand;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.server.TabCompleteEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class BukkitCommands implements Listener {
 
@@ -56,18 +45,11 @@ public class BukkitCommands implements Listener {
         this.dispatcher = new CommandDispatcher<>();
 
         // register commands
-        new Commands<>(plugin, dispatcher, bukkitSender -> {
-
-            // RCON doesn't work async, use console instead
-            if (bukkitSender instanceof RemoteConsoleCommandSender)
-                return new BukkitCommandSource(plugin, Bukkit.getConsoleSender());
-
-            return new BukkitCommandSource(plugin, bukkitSender);
-        });
+        new Commands<>(plugin, dispatcher, bukkitSender -> new BukkitCommandSource(plugin, bukkitSender));
     }
 
-    public Collection<BukkitCommand> getRootCommands(){
-        Collection<BukkitCommand> rootCommands = new ArrayList<>();
+    public Collection<Command> getRootCommands(){
+        Collection<Command> rootCommands = new ArrayList<>();
 
         for (CommandNode<CommandSender> node : this.dispatcher.getRoot().getChildren()) {
             rootCommands.add(new CommandProxy(node.getName()));
@@ -76,42 +58,7 @@ public class BukkitCommands implements Listener {
         return rootCommands;
     }
 
-    @EventHandler
-    public void onTabComplete(TabCompleteEvent evt) {
-        try {
-            String input = evt.getBuffer();
-            if (input.length() > 0 && input.charAt(0) == '/') {
-                input = input.substring(1);
-            }
-
-            Suggestions suggestions = dispatcher.getCompletionSuggestions(dispatcher.parse(input, evt.getSender())).get(100, TimeUnit.MILLISECONDS);
-            List<String> completions = new ArrayList<>();
-            for (Suggestion suggestion : suggestions.getList()) {
-                String text = suggestion.getText();
-
-                if (text.indexOf(' ') == -1) {
-                    completions.add(text);
-                }
-            }
-
-            if (!completions.isEmpty()) {
-                completions.sort(String::compareToIgnoreCase);
-
-                try {
-                    evt.getCompletions().addAll(completions);
-                } catch (UnsupportedOperationException ex){
-                    // fix for a bug with paper where the completion-Collection is not mutable for some reason
-                    List<String> mutableCompletions = new ArrayList<>(evt.getCompletions());
-                    mutableCompletions.addAll(completions);
-                    evt.setCompletions(mutableCompletions);
-                }
-            }
-        } catch (InterruptedException ignore) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException | TimeoutException ignore) {}
-    }
-
-    private class CommandProxy extends BukkitCommand {
+    private class CommandProxy extends Command {
 
         protected CommandProxy(String name) {
             super(name);
@@ -121,7 +68,7 @@ public class BukkitCommands implements Listener {
         public boolean execute(CommandSender sender, String commandLabel, String[] args) {
             String command = commandLabel;
             if (args.length > 0) {
-                command += " " + StringUtils.join(args, ' ');
+                command += " " + String.join(" ", args);
             }
 
             try {

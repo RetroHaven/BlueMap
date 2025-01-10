@@ -26,10 +26,10 @@ package de.bluecolored.bluemap.bukkit;
 
 import de.bluecolored.bluemap.common.serverinterface.ServerEventListener;
 import de.bluecolored.bluemap.common.plugin.text.Text;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -52,20 +52,19 @@ public class EventForwarder implements Listener {
         listeners.clear();
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = Event.Priority.Monitor, ignoreCancelled = true)
     public synchronized void onPlayerJoin(PlayerJoinEvent evt) {
         for (ServerEventListener listener : listeners) listener.onPlayerJoin(evt.getPlayer().getUniqueId());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = Event.Priority.Monitor, ignoreCancelled = true)
     public synchronized void onPlayerLeave(PlayerQuitEvent evt) {
         for (ServerEventListener listener : listeners) listener.onPlayerJoin(evt.getPlayer().getUniqueId());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public synchronized void onPlayerChat(AsyncPlayerChatEvent evt) {
+    @EventHandler(priority = Event.Priority.Monitor, ignoreCancelled = true)
+    public synchronized void onPlayerChat(PlayerChatEvent evt) {
         String message = String.format(evt.getFormat(), evt.getPlayer().getDisplayName(), evt.getMessage());
         for (ServerEventListener listener : listeners) listener.onChatMessage(Text.of(message));
     }
-
 }

@@ -30,8 +30,8 @@ import de.bluecolored.bluemap.common.plugin.text.Text;
 import de.bluecolored.bluemap.common.serverinterface.CommandSource;
 import de.bluecolored.bluemap.core.world.World;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -51,12 +51,10 @@ public class BukkitCommandSource implements CommandSource {
 
     @Override
     public void sendMessage(Text text) {
-        Bukkit.getScheduler().runTask(BukkitPlugin.getInstance(), () -> {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(BukkitPlugin.getInstance(), () -> {
             if (delegate instanceof Player) {
                 Player player = (Player) delegate;
-
-                //kinda hacky but works
-                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "minecraft:tellraw " + player.getName() + " " + text.toJSONString());
+                player.sendMessage(ChatColor.GRAY + text.toPlainString());
                 return;
             }
 
@@ -99,9 +97,6 @@ public class BukkitCommandSource implements CommandSource {
         Location location = null;
         if (delegate instanceof Entity) {
             location = ((Entity) delegate).getLocation();
-        }
-        if (delegate instanceof BlockCommandSender) {
-            location = ((BlockCommandSender) delegate).getBlock().getLocation();
         }
 
         return location;

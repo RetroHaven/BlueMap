@@ -31,8 +31,6 @@ import de.bluecolored.bluemap.common.plugin.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.metadata.MetadataValue;
-import org.bukkit.potion.PotionEffectType;
 
 import java.io.IOException;
 import java.util.EnumMap;
@@ -43,10 +41,8 @@ public class BukkitPlayer implements Player {
 
     private static final Map<GameMode, Gamemode> GAMEMODE_MAP = new EnumMap<>(GameMode.class);
     static {
-        GAMEMODE_MAP.put(GameMode.ADVENTURE, Gamemode.ADVENTURE);
         GAMEMODE_MAP.put(GameMode.SURVIVAL, Gamemode.SURVIVAL);
         GAMEMODE_MAP.put(GameMode.CREATIVE, Gamemode.CREATIVE);
-        GAMEMODE_MAP.put(GameMode.SPECTATOR, Gamemode.SPECTATOR);
     }
 
     private final UUID uuid;
@@ -131,23 +127,24 @@ public class BukkitPlayer implements Player {
      * API access, only call on server thread!
      */
     public void update() {
-        org.bukkit.entity.Player player = Bukkit.getPlayer(uuid);
+        org.bukkit.entity.Player player = Bukkit.getServer().getPlayer(uuid);
         if (player == null) {
             this.online = false;
             return;
         }
 
-        this.gamemode = GAMEMODE_MAP.get(player.getGameMode());
+        this.gamemode = GAMEMODE_MAP.get(GameMode.SURVIVAL);
         if (this.gamemode == null) this.gamemode = Gamemode.SURVIVAL;
 
-        this.invisible = player.hasPotionEffect(PotionEffectType.INVISIBILITY);
+        this.invisible = this.vanished = false; // TODO add support for vanish;
 
         //also check for "vanished" players
-        boolean vanished = false;
+        /*
+                boolean vanished = false;
         for (MetadataValue meta : player.getMetadata("vanished")) {
             if (meta.asBoolean()) vanished = true;
         }
-        this.vanished = vanished;
+         */
 
         this.name = Text.of(player.getName());
         this.online = player.isOnline();
@@ -157,8 +154,8 @@ public class BukkitPlayer implements Player {
         this.rotation = new Vector3d(location.getPitch(), location.getYaw(), 0);
         this.sneaking = player.isSneaking();
 
-        this.skyLight = player.getLocation().getBlock().getLightFromSky();
-        this.blockLight = player.getLocation().getBlock().getLightFromBlocks();
+        this.skyLight = //player.getLocation().getBlock().getLightLevel();
+        this.blockLight = player.getLocation().getBlock().getLightLevel();
 
         try {
             var world = BukkitPlugin.getInstance().getWorld(player.getWorld());

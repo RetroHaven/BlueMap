@@ -27,8 +27,6 @@ package de.bluecolored.bluemap.core.mcr;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.apache.commons.lang3.math.NumberUtils;
-
 import de.bluecolored.bluemap.core.world.BlockState;
 import de.bluecolored.bluemap.core.world.LightData;
 import net.querz.nbt.CompoundTag;
@@ -424,19 +422,7 @@ public class ChunkMcRegion extends MCRChunk {
             
             // if slab or stairs, use max light value from neighboring blocks (except facing down)
             if (block_id == 44 || block_id == 53 || block_id == 67) {
-
-                ChunkMcRegion chunkxminus = ((ChunkMcRegion) this.world.getChunkAtBlock(x-1, y, z));
-                ChunkMcRegion chunkxplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x+1, y, z));
-                ChunkMcRegion chunkzminus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y, z-1));
-                ChunkMcRegion chunkzplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y, z+1));
-                ChunkMcRegion chunkyplus = ((ChunkMcRegion) this.world.getChunkAtBlock(x, y+1, z));
-                int lightxminus = chunkxminus.section.blockLight.data.length > 0 ? chunkxminus.section.blockLight.getData(x-1, y, z) : 0;
-                int lightxplus = chunkxplus.section.blockLight.data.length > 0 ? chunkxplus.section.blockLight.getData(x+1, y, z) : 0;
-                int lightzminus = chunkzminus.section.blockLight.data.length > 0 ? chunkzminus.section.blockLight.getData(x, y, z-1) : 0;
-                int lightzplus = chunkzplus.section.blockLight.data.length > 0 ? chunkzplus.section.blockLight.getData(x, y, z+1) : 0;
-                int lightyplus = chunkyplus.section.blockLight.data.length > 0 ? chunkyplus.section.blockLight.getData(x, y+1, z) : 0;
-
-                blocklight = NumberUtils.max(lightxminus, lightxplus, lightzminus, lightzplus, lightyplus);
+				blocklight = 7;
             }
 
             return target.set(

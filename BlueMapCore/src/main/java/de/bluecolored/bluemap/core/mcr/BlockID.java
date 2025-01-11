@@ -420,19 +420,14 @@ public enum BlockID {
 				properties.put("shape", "north_east");
 			
 		} else if (isPistonVariant(bid)) {
-			
-			if (metadata < 8) {
-				
-				properties.put("extended", "false");
-				properties.put("type", "normal");
-				
+
+			if (bid != BlockID.PISTON_EXTENSION) {
+				properties.put("extended", metadata < 8 ? "false" : "true");
 			} else {
-				
-				properties.put("extended", "true");
-				properties.put("type", "sticky");
-				
+				properties.put("short", "false");
 			}
-			
+			properties.put("type", metadata < 8 ? "normal" : "sticky");
+
 			metadata %= 8;
 			
 			if (metadata == 0)

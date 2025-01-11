@@ -1,0 +1,6 @@
+{
+    "parent": "block/cube_all",
+    "textures": {
+        "all": "bluemap:block/six_sided_sticky_piston"
+    }
+}

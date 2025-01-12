@@ -17,7 +17,7 @@ public enum BlockID {
 	BEDROCK(7, "minecraft:bedrock"),
 	WATER(8, "minecraft:flowing_water"),
 	STATIONARY_WATER(9, "minecraft:water"),
-	LAVA(10, "minecraft:flowing_lava"),
+	LAVA(10, "minecraft:lava"),
 	STATIONARY_LAVA(11, "minecraft:lava"),
 	SAND(12, "minecraft:sand"),
 	GRAVEL(13, "minecraft:gravel"),

@@ -26,10 +26,14 @@ package de.bluecolored.bluemap.core.mcr;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
+import de.bluecolored.bluemap.core.BlueMap;
 import de.bluecolored.bluemap.core.world.BlockState;
 import de.bluecolored.bluemap.core.world.LightData;
 import net.querz.nbt.CompoundTag;
+import org.apache.commons.lang3.math.NumberUtils;
 
 @SuppressWarnings("FieldMayBeFinal")
 public class ChunkMcRegion extends MCRChunk {
@@ -417,19 +421,49 @@ public class ChunkMcRegion extends MCRChunk {
             x &= 0xF; z &= 0xF;
             
             int blocklight = this.blockLight.data.length > 0 ? blockLight.getData(x, y, z) : 0;
-            
+            int skylight = this.skyLight.data.length > 0 ? skyLight.getData(x, y, z) : 0;
+
             int block_id = this.blocks[x << 11 | z << 7 | y] & 255;
-            
-            // if slab or stairs, use max light value from neighboring blocks (except facing down)
-            if (block_id == 44 || block_id == 53 || block_id == 67) {
-				blocklight = 7;
+
+			// if slab or stairs, use max light value from neighboring blocks (except facing down)
+			if (block_id == 44 || block_id == 53 || block_id == 67) {
+				blocklight = NumberUtils.max(
+						blocklight,
+						this.getBlockLight(x-1, y, z),
+						this.getBlockLight(x+1, y, z),
+						this.getBlockLight(x, y, z-1),
+						this.getBlockLight(x, y, z+1),
+						this.getBlockLight(x, y+1, z)
+				);
+
+				skylight = NumberUtils.max(
+						skylight,
+						this.getSkyLight(x-1, y, z),
+						this.getSkyLight(x+1, y, z),
+						this.getSkyLight(x, y, z-1),
+						this.getSkyLight(x, y, z+1),
+						this.getSkyLight(x, y+1, z)
+				);
             }
 
-            return target.set(
-                    this.skyLight.data.length > 0 ? skyLight.getData(x, y, z) : 0,
-                    blocklight
-            );
+            return target.set(skylight, blocklight);
         }
+
+		private int getBlockLight(int x, int y, int z) {
+			try {
+				return this.blockLight.getData(x, y, z);
+			} catch (Exception ex) {
+				return 0;
+			}
+		}
+
+		private int getSkyLight(int x, int y, int z) {
+			try {
+				return this.skyLight.getData(x, y, z);
+			} catch (Exception ex) {
+				return 0;
+			}
+		}
     }
 
 }

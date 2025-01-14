@@ -235,6 +235,7 @@ public enum BlockID {
 		WOOD_STAIRS.putProperty("half", "bottom");
 		
 		TRAP_DOOR.putProperty("half", "bottom");
+		PISTON_EXTENSION.putProperty("short", "false");
 		
 		// TODO temporary lazy hack
 		REDSTONE_WIRE.putProperty("east", "side");
@@ -423,8 +424,6 @@ public enum BlockID {
 
 			if (bid != BlockID.PISTON_EXTENSION) {
 				properties.put("extended", metadata < 8 ? "false" : "true");
-			} else {
-				properties.put("short", "false");
 			}
 			properties.put("type", metadata < 8 ? "normal" : "sticky");
 

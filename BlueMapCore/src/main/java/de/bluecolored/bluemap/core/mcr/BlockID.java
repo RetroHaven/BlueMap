@@ -98,6 +98,7 @@ public enum BlockID {
 	FIRE(51, "minecraft:fire"),
 	MOB_SPAWNER(52, "minecraft:spawner"),
 	WOOD_STAIRS(53, "minecraft:oak_stairs"),
+	WOOD_STAIRS_INVISIBLE(53, 5, "minecraft:barrier"),
 	CHEST(54, "minecraft:chest"),
 	REDSTONE_WIRE(55, "minecraft:redstone_wire"), // TODO later
 	DIAMOND_ORE(56, "minecraft:diamond_ore"),
@@ -112,6 +113,7 @@ public enum BlockID {
 	LADDER(65, "minecraft:ladder"),
 	RAILS(66, "minecraft:rail"),
 	COBBLESTONE_STAIRS(67, "minecraft:cobblestone_stairs"),
+	COBBLESTONE_STAIRS_INVISIBLE(67, 5, "minecraft:barrier"),
 	WALL_SIGN(68, "minecraft:oak_wall_sign"),
 	LEVER(69, "minecraft:lever"),
 	STONE_PLATE(70, "minecraft:stone_pressure_plate"),

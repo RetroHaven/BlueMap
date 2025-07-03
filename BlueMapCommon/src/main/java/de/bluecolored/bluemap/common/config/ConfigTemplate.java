@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ConfigTemplate {
@@ -66,10 +67,25 @@ public class ConfigTemplate {
     }
 
     private String build(String template, Predicate<? super String> conditionalResolver, Function<? super String, String> variableResolver) {
-        String result = TEMPLATE_CONDITIONAL.matcher(template).replaceAll(match ->
-                conditionalResolver.test(match.group(1)) ? replacerEscape(build(match.group(2), conditionalResolver, variableResolver)) : ""
-        );
-        return TEMPLATE_VARIABLE.matcher(result).replaceAll(match -> variableResolver.apply(match.group(1)));
+        Matcher conditionalMatcher = TEMPLATE_CONDITIONAL.matcher(template);
+        StringBuffer result = new StringBuffer();
+        while (conditionalMatcher.find()) {
+            String replacement = conditionalResolver.test(conditionalMatcher.group(1))
+                    ? replacerEscape(build(conditionalMatcher.group(2), conditionalResolver, variableResolver))
+                    : "";
+            conditionalMatcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+        }
+        conditionalMatcher.appendTail(result);
+
+        Matcher variableMatcher = TEMPLATE_VARIABLE.matcher(result.toString());
+        StringBuffer finalBuffer = new StringBuffer();
+        while (variableMatcher.find()) {
+            String replacement = variableResolver.apply(variableMatcher.group(1));
+            variableMatcher.appendReplacement(finalBuffer, Matcher.quoteReplacement(replacement));
+        }
+        variableMatcher.appendTail(finalBuffer);
+
+        return finalBuffer.toString();
     }
 
     private String replacerEscape(String raw) {

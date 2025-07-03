@@ -97,7 +97,7 @@ public class ResourcePath<T> extends Key {
             if (!type.getRawType().isAssignableFrom(ResourcePath.class))
                 return null;
 
-            return new TypeAdapter<>() {
+            return new TypeAdapter<T>() {
                 @Override
                 public void write(JsonWriter out, T value) throws IOException {
                     out.value(((ResourcePath<?>) value).getFormatted());

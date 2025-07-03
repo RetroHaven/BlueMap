@@ -28,6 +28,7 @@ import com.flowpowered.math.vector.Vector3d;
 import de.bluecolored.bluemap.common.plugin.Plugin;
 import de.bluecolored.bluemap.common.plugin.text.Text;
 import de.bluecolored.bluemap.common.serverinterface.CommandSource;
+import de.bluecolored.bluemap.common.serverinterface.ServerWorld;
 import de.bluecolored.bluemap.core.world.World;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -84,7 +85,7 @@ public class BukkitCommandSource implements CommandSource {
 
         if (location != null) {
             try {
-                var serverWorld = BukkitPlugin.getInstance().getWorld(location.getWorld());
+                ServerWorld serverWorld = BukkitPlugin.getInstance().getWorld(location.getWorld());
                 String worldId = plugin.getBlueMap().getWorldId(serverWorld.getSaveFolder());
                 return Optional.ofNullable(plugin.getWorlds().get(worldId));
             } catch (IOException ignore) {}

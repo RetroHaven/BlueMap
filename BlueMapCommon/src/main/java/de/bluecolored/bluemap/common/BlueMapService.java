@@ -208,7 +208,7 @@ public class BlueMapService implements Closeable {
         maps = new HashMap<>();
         worlds = new HashMap<>();
 
-        for (var entry : configs.getMapConfigs().entrySet()) {
+        for (Map.Entry<String, MapConfig> entry : configs.getMapConfigs().entrySet()) {
             try {
                 loadMapConfig(entry.getKey(), entry.getValue());
             } catch (ConfigurationException ex) {

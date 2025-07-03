@@ -37,6 +37,7 @@ import de.bluecolored.bluemap.common.rendermanager.MapUpdateTask;
 import de.bluecolored.bluemap.common.rendermanager.RenderManager;
 import de.bluecolored.bluemap.common.serverinterface.ServerEventListener;
 import de.bluecolored.bluemap.common.serverinterface.ServerInterface;
+import de.bluecolored.bluemap.common.serverinterface.ServerWorld;
 import de.bluecolored.bluemap.common.web.*;
 import de.bluecolored.bluemap.common.web.http.HttpServer;
 import de.bluecolored.bluemap.core.debug.StateDumper;
@@ -59,6 +60,7 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -131,7 +133,7 @@ public class Plugin implements ServerEventListener {
                 if (coreConfig.getLog().getFile() != null) {
                     ZonedDateTime zdt = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
                     Logger.global.put(DEBUG_FILE_LOG_NAME, () -> Logger.file(
-                            Path.of(String.format(coreConfig.getLog().getFile(), zdt)),
+                            Paths.get(String.format(coreConfig.getLog().getFile(), zdt)),
                             coreConfig.getLog().isAppend()
                     ));
                 } else {
@@ -158,7 +160,7 @@ public class Plugin implements ServerEventListener {
 
                     BlueMapConfigProvider configProvider = blueMap.getConfigs();
                     if (configProvider instanceof BlueMapConfigs) {
-                        Logger.global.logWarning("Please check: " + ((BlueMapConfigs) configProvider).getConfigManager().findConfigPath(Path.of("core")).toAbsolutePath().normalize());
+                        Logger.global.logWarning("Please check: " + ((BlueMapConfigs) configProvider).getConfigManager().findConfigPath(Paths.get("core")).toAbsolutePath().normalize());
                     }
 
                     Logger.global.logInfo("If you have changed the config you can simply reload the plugin using: /bluemap reload");
@@ -182,14 +184,14 @@ public class Plugin implements ServerEventListener {
                     routingRequestHandler.register(".*", new FileRequestHandler(webroot));
 
                     // map route
-                    for (var mapConfigEntry : getConfigs().getMapConfigs().entrySet()) {
+                    for (Map.Entry<String, MapConfig> mapConfigEntry : getConfigs().getMapConfigs().entrySet()) {
                         String id = mapConfigEntry.getKey();
                         MapConfig mapConfig = mapConfigEntry.getValue();
 
                         MapRequestHandler mapRequestHandler;
                         BmMap map = maps.get(id);
                         if (map != null) {
-                            mapRequestHandler = new MapRequestHandler(map, serverInterface, pluginConfig, Predicate.not(pluginState::isPlayerHidden));
+                            mapRequestHandler = new MapRequestHandler(map, serverInterface, pluginConfig, ((Predicate<UUID>) pluginState::isPlayerHidden).negate());
                         } else {
                             Storage storage = blueMap.getStorage(mapConfig.getStorage());
                             mapRequestHandler = new MapRequestHandler(id, storage);
@@ -207,7 +209,7 @@ public class Plugin implements ServerEventListener {
                     if (webserverConfig.getLog().getFile() != null) {
                         ZonedDateTime zdt = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
                         webLoggerList.add(Logger.file(
-                                Path.of(String.format(webserverConfig.getLog().getFile(), zdt)),
+                                Paths.get(String.format(webserverConfig.getLog().getFile(), zdt)),
                                 webserverConfig.getLog().isAppend()
                         ));
                     }
@@ -520,7 +522,7 @@ public class Plugin implements ServerEventListener {
     public void savePlayerStates() {
         if (maps != null) {
             for (BmMap map : maps.values()) {
-                var dataSupplier = new LivePlayersDataSupplier(
+                LivePlayersDataSupplier dataSupplier = new LivePlayersDataSupplier(
                         serverInterface,
                         getConfigs().getPluginConfig(),
                         map.getWorldId(),
@@ -558,7 +560,7 @@ public class Plugin implements ServerEventListener {
     }
 
     public boolean flushWorldUpdates(World world) throws IOException {
-        var implWorld = serverInterface.getWorld(world.getSaveFolder()).orElse(null);
+        ServerWorld implWorld = serverInterface.getWorld(world.getSaveFolder()).orElse(null);
         if (implWorld != null) return implWorld.persistWorldChanges();
         return false;
     }

@@ -71,8 +71,8 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
         Logger.global.clear();
         Logger.global.put(new JavaLogger(java.util.logging.Logger.getLogger("Minecraft")));
 
-        //try to get best matching minecraft-version
-        this.minecraftVersion = MinecraftVersion.LATEST_SUPPORTED;
+        //Project Poseidon is on beta 1.7.3, so use that version
+        this.minecraftVersion = MinecraftVersion.EARLIEST_SUPPORTED;
 
         this.onlinePlayerMap = new ConcurrentHashMap<>();
         this.onlinePlayerList = Collections.synchronizedList(new ArrayList<>());
@@ -186,17 +186,17 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
             return getWorld((Path) world);
 
         if (world instanceof String) {
-            var serverWorld = Bukkit.getWorld((String) world);
+            World serverWorld = Bukkit.getWorld((String) world);
             if (serverWorld != null) world = serverWorld;
         }
 
         if (world instanceof String) {
-            var serverWorld = Bukkit.getWorld(new Key((String) world).getValue());
+            World serverWorld = Bukkit.getWorld(new Key((String) world).getValue());
             if (serverWorld != null) world = serverWorld;
         }
 
         if (world instanceof UUID) {
-            var serverWorld = Bukkit.getWorld((UUID) world);
+            World serverWorld = Bukkit.getWorld((UUID) world);
             if (serverWorld != null) world = serverWorld;
         }
 

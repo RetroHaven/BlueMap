@@ -151,7 +151,7 @@ public class Element {
     }
 
     public void optimize(ResourcePack resourcePack) {
-        for (var face : faces.values())  {
+        for (Face face : faces.values())  {
             face.optimize(resourcePack);
         }
     }

@@ -28,18 +28,17 @@ import de.bluecolored.bluemap.api.debug.DebugDump;
 import de.bluecolored.bluemap.common.BlueMapConfigProvider;
 import de.bluecolored.bluemap.common.config.storage.StorageConfig;
 import de.bluecolored.bluemap.common.serverinterface.ServerInterface;
+import de.bluecolored.bluemap.common.serverinterface.ServerWorld;
 import de.bluecolored.bluemap.core.BlueMap;
 import de.bluecolored.bluemap.core.logger.Logger;
 import de.bluecolored.bluemap.core.util.FileHelper;
 import de.bluecolored.bluemap.core.util.Tristate;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 @DebugDump
@@ -56,7 +55,7 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
     private final Map<String, StorageConfig> storageConfigs;
 
     public BlueMapConfigs(ServerInterface serverInterface) throws ConfigurationException {
-        this(serverInterface, Path.of("bluemap"), Path.of("bluemap", "web"), true);
+        this(serverInterface, Paths.get("bluemap"), Paths.get("bluemap", "web"), true);
     }
 
     public BlueMapConfigs(ServerInterface serverInterface, Path defaultDataFolder, Path defaultWebroot, boolean usePluginConf) throws ConfigurationException {
@@ -106,7 +105,7 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
     }
 
     private synchronized CoreConfig loadCoreConfig(Path defaultDataFolder) throws ConfigurationException {
-        Path configFileRaw = Path.of("core");
+        Path configFileRaw = Paths.get("core");
         Path configFile = configManager.findConfigPath(configFileRaw);
         Path configFolder = configFile.getParent();
 
@@ -124,7 +123,7 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
 
             try {
                 FileHelper.createDirectories(configFolder);
-                Files.writeString(
+                Files.write(
                         configFolder.resolve("core.conf"),
                         configManager.loadConfigTemplate("/de/bluecolored/bluemap/config/core.conf")
                                 .setConditional("metrics", serverInterface.isMetricsEnabled() == Tristate.UNDEFINED)
@@ -135,7 +134,8 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
                                 .setVariable("render-thread-count", Integer.toString(presetRenderThreadCount))
                                 .setVariable("logfile", formatPath(defaultDataFolder.resolve("logs").resolve("debug.log")))
                                 .setVariable("logfile-with-time", formatPath(defaultDataFolder.resolve("logs").resolve("debug_%1$tF_%1$tT.log")))
-                                .build(),
+                                .build()
+                                .getBytes(StandardCharsets.UTF_8),
                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                 );
             } catch (IOException | NullPointerException ex) {
@@ -147,20 +147,21 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
     }
 
     private synchronized WebserverConfig loadWebserverConfig(Path defaultWebroot, Path dataRoot) throws ConfigurationException {
-        Path configFileRaw = Path.of("webserver");
+        Path configFileRaw = Paths.get("webserver");
         Path configFile = configManager.findConfigPath(configFileRaw);
         Path configFolder = configFile.getParent();
 
         if (!Files.exists(configFile)) {
             try {
                 FileHelper.createDirectories(configFolder);
-                Files.writeString(
+                Files.write(
                         configFolder.resolve("webserver.conf"),
                         configManager.loadConfigTemplate("/de/bluecolored/bluemap/config/webserver.conf")
                                 .setVariable("webroot", formatPath(defaultWebroot))
                                 .setVariable("logfile", formatPath(dataRoot.resolve("logs").resolve("webserver.log")))
                                 .setVariable("logfile-with-time", formatPath(dataRoot.resolve("logs").resolve("webserver_%1$tF_%1$tT.log")))
-                                .build(),
+                                .build()
+                                .getBytes(StandardCharsets.UTF_8),
                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                 );
             } catch (IOException | NullPointerException ex) {
@@ -172,18 +173,19 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
     }
 
     private synchronized WebappConfig loadWebappConfig(Path defaultWebroot) throws ConfigurationException {
-        Path configFileRaw = Path.of("webapp");
+        Path configFileRaw = Paths.get("webapp");
         Path configFile = configManager.findConfigPath(configFileRaw);
         Path configFolder = configFile.getParent();
 
         if (!Files.exists(configFile)) {
             try {
                 FileHelper.createDirectories(configFolder);
-                Files.writeString(
+                Files.write(
                         configFolder.resolve("webapp.conf"),
                         configManager.loadConfigTemplate("/de/bluecolored/bluemap/config/webapp.conf")
                                 .setVariable("webroot", formatPath(defaultWebroot))
-                                .build(),
+                                .build()
+                                .getBytes(StandardCharsets.UTF_8),
                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                 );
             } catch (IOException | NullPointerException ex) {
@@ -195,17 +197,18 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
     }
 
     private synchronized PluginConfig loadPluginConfig() throws ConfigurationException {
-        Path configFileRaw = Path.of("plugin");
+        Path configFileRaw = Paths.get("plugin");
         Path configFile = configManager.findConfigPath(configFileRaw);
         Path configFolder = configFile.getParent();
 
         if (!Files.exists(configFile)) {
             try {
                 FileHelper.createDirectories(configFolder);
-                Files.writeString(
+                Files.write(
                         configFolder.resolve("plugin.conf"),
                         configManager.loadConfigTemplate("/de/bluecolored/bluemap/config/plugin.conf")
-                                .build(),
+                                .build()
+                                .getBytes(StandardCharsets.UTF_8),
                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                 );
             } catch (IOException | NullPointerException ex) {
@@ -225,25 +228,25 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
         if (!Files.exists(mapConfigFolder)){
             try {
                 FileHelper.createDirectories(mapConfigFolder);
-                var worlds = serverInterface.getLoadedWorlds();
+                Collection<ServerWorld> worlds = serverInterface.getLoadedWorlds();
                 if (worlds.isEmpty()) {
-                    Files.writeString(
+                    Files.write(
                             mapConfigFolder.resolve("overworld.conf"),
-                            createOverworldMapTemplate("Overworld", Path.of("world"), 0).build(),
+                            createOverworldMapTemplate("Overworld", Paths.get("world"), 0).build().getBytes(StandardCharsets.UTF_8),
                             StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                     );
-                    Files.writeString(
+                    Files.write(
                             mapConfigFolder.resolve("nether.conf"),
-                            createNetherMapTemplate("Nether", Path.of("world", "DIM-1"), 0).build(),
+                            createNetherMapTemplate("Nether", Paths.get("world", "DIM-1"), 0).build().getBytes(StandardCharsets.UTF_8),
                             StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                     );
-                    Files.writeString(
+                    Files.write(
                             mapConfigFolder.resolve("end.conf"),
-                            createEndMapTemplate("End", Path.of("world", "DIM1"), 0).build(),
+                            createEndMapTemplate("End", Paths.get("world", "DIM1"), 0).build().getBytes(StandardCharsets.UTF_8),
                             StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                     );
                 } else {
-                    for (var world : worlds) {
+                    for (ServerWorld world : worlds) {
                         String name = world.getName().orElse(world.getDimension().getName());
                         Path worldFolder = world.getSaveFolder();
 
@@ -262,9 +265,9 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
                             default: template = createOverworldMapTemplate(name, worldFolder, i - 1); break;
                         }
 
-                        Files.writeString(
+                        Files.write(
                                 configFile,
-                                template.build(),
+                                template.build().getBytes(StandardCharsets.UTF_8),
                                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                         );
                     }
@@ -278,7 +281,7 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
         }
 
         try (Stream<Path> configFiles = Files.list(mapConfigFolder)) {
-            for (var configFile : configFiles.toArray(Path[]::new)) {
+            for (Path configFile : configFiles.toArray(Path[]::new)) {
                 if (!configManager.isConfigFile(configFile)) continue;
                 Path rawConfig = configManager.getRaw(configFile);
                 String id = sanitiseMapId(rawConfig.getFileName().toString());
@@ -311,16 +314,17 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
         if (!Files.exists(storageConfigFolder)){
             try {
                 FileHelper.createDirectories(storageConfigFolder);
-                Files.writeString(
+                Files.write(
                         storageConfigFolder.resolve("file.conf"),
                         configManager.loadConfigTemplate("/de/bluecolored/bluemap/config/storages/file.conf")
                                 .setVariable("root", formatPath(defaultWebroot.resolve("maps")))
-                                .build(),
+                                .build()
+                                .getBytes(StandardCharsets.UTF_8),
                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                 );
-                Files.writeString(
+                Files.write(
                         storageConfigFolder.resolve("sql.conf"),
-                        configManager.loadConfigTemplate("/de/bluecolored/bluemap/config/storages/sql.conf").build(),
+                        configManager.loadConfigTemplate("/de/bluecolored/bluemap/config/storages/sql.conf").build().getBytes(StandardCharsets.UTF_8),
                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
                 );
             } catch (IOException | NullPointerException ex) {
@@ -333,7 +337,7 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
 
 
         try (Stream<Path> configFiles = Files.list(storageConfigFolder)) {
-            for (var configFile : configFiles.toArray(Path[]::new)) {
+            for (Path configFile : configFiles.toArray(Path[]::new)) {
                 if (!configManager.isConfigFile(configFile)) continue;
                 Path rawConfig = configManager.getRaw(configFile);
                 String id = rawConfig.getFileName().toString();
@@ -400,7 +404,7 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
 
     private String formatPath(Path path) {
         // normalize path
-        path = Path.of("")
+        path = Paths.get("")
                 .toAbsolutePath()
                 .relativize(path.toAbsolutePath())
                 .normalize();
@@ -414,7 +418,7 @@ public class BlueMapConfigs implements BlueMapConfigProvider {
             formatted = pathString.replace(separator, "/");
 
         // sanity check forward slash compatibility
-        if (!Path.of(formatted).equals(path))
+        if (!Paths.get(formatted).equals(path))
             formatted = pathString;
 
         // escape all backslashes

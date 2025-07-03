@@ -33,6 +33,7 @@ import de.bluecolored.bluemap.core.resources.resourcepack.blockstate.Variant;
 import de.bluecolored.bluemap.core.util.math.Color;
 import de.bluecolored.bluemap.core.world.BlockNeighborhood;
 import de.bluecolored.bluemap.core.world.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +83,7 @@ public class BlockStateModelFactory {
     private void renderModel(BlockNeighborhood<?> block, BlockState blockState, BlockModelView blockModel, Color blockColor) {
         int modelStart = blockModel.getStart();
 
-        var stateResource = resourcePack.getBlockState(blockState);
+        de.bluecolored.bluemap.core.resources.resourcepack.blockstate.@Nullable BlockState stateResource = resourcePack.getBlockState(blockState);
         if (stateResource == null) return;
 
         float blockColorOpacity = 0;

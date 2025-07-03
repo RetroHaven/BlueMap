@@ -33,13 +33,14 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 public class WebAppImpl implements WebApp {
-    private static final Path IMAGE_ROOT_PATH = Path.of("data", "images");
+    private static final Path IMAGE_ROOT_PATH = Paths.get("data", "images");
 
     private final Plugin plugin;
 

@@ -73,7 +73,7 @@ public class MultiLogger extends AbstractLogger {
     public void clear() {
         lock.writeLock().lock();
         try {
-            String[] loggerNames = this.logger.keySet().toArray(String[]::new);
+            String[] loggerNames = this.logger.keySet().toArray(new String[0]);
             for (String name : loggerNames)
                 remove(name);
             this.logger.clear();

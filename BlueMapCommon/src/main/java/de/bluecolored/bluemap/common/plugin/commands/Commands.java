@@ -39,6 +39,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import de.bluecolored.bluemap.common.config.ConfigurationException;
+import de.bluecolored.bluemap.common.config.storage.StorageConfig;
 import de.bluecolored.bluemap.common.plugin.Plugin;
 import de.bluecolored.bluemap.common.plugin.PluginState;
 import de.bluecolored.bluemap.common.plugin.text.Text;
@@ -46,6 +47,7 @@ import de.bluecolored.bluemap.common.plugin.text.TextColor;
 import de.bluecolored.bluemap.common.plugin.text.TextFormat;
 import de.bluecolored.bluemap.common.rendermanager.*;
 import de.bluecolored.bluemap.common.serverinterface.CommandSource;
+import de.bluecolored.bluemap.common.serverinterface.ServerWorld;
 import de.bluecolored.bluemap.core.BlueMap;
 import de.bluecolored.bluemap.core.MinecraftVersion;
 import de.bluecolored.bluemap.core.debug.StateDumper;
@@ -714,14 +716,14 @@ public class Commands<S> {
             try {
                 List<BmMap> maps = new ArrayList<>();
                 if (worldToRender != null) {
-                    var world = plugin.getServerInterface().getWorld(worldToRender.getSaveFolder()).orElse(null);
+                    ServerWorld world = plugin.getServerInterface().getWorld(worldToRender.getSaveFolder()).orElse(null);
                     if (world != null) world.persistWorldChanges();
 
                     for (BmMap map : plugin.getMaps().values()) {
                         if (map.getWorld().getSaveFolder().equals(worldToRender.getSaveFolder())) maps.add(map);
                     }
                 } else {
-                    var world = plugin.getServerInterface().getWorld(mapToRender.getWorld().getSaveFolder()).orElse(null);
+                    ServerWorld world = plugin.getServerInterface().getWorld(mapToRender.getWorld().getSaveFolder()).orElse(null);
                     if (world != null) world.persistWorldChanges();
 
                     maps.add(mapToRender);
@@ -831,7 +833,7 @@ public class Commands<S> {
         CommandSource source = commandSourceInterface.apply(context.getSource());
 
         source.sendMessage(Text.of(TextColor.BLUE, "Worlds loaded by BlueMap:"));
-        for (var entry : plugin.getWorlds().entrySet()) {
+        for (Map.Entry<String, World> entry : plugin.getWorlds().entrySet()) {
             source.sendMessage(Text.of(TextColor.GRAY, " - ", TextColor.WHITE, entry.getValue().getName()).setHoverText(Text.of(entry.getValue().getSaveFolder(), TextColor.GRAY, " (" + entry.getKey() + ")")));
         }
 
@@ -868,7 +870,7 @@ public class Commands<S> {
         CommandSource source = commandSourceInterface.apply(context.getSource());
 
         source.sendMessage(Text.of(TextColor.BLUE, "Storages loaded by BlueMap:"));
-        for (var entry : plugin.getBlueMap().getConfigs().getStorageConfigs().entrySet()) {
+        for (Map.Entry<String, StorageConfig> entry : plugin.getBlueMap().getConfigs().getStorageConfigs().entrySet()) {
             source.sendMessage(Text.of(TextColor.GRAY, " - ", TextColor.WHITE, entry.getKey())
                     .setHoverText(Text.of(entry.getValue().getStorageType().name()))
                     .setClickAction(Text.ClickAction.RUN_COMMAND, "/bluemap storages " + entry.getKey())

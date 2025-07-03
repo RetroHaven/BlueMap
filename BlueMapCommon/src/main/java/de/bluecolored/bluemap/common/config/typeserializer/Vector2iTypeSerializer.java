@@ -36,8 +36,8 @@ public class Vector2iTypeSerializer implements TypeSerializer<Vector2i> {
 
     @Override
     public Vector2i deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        var xNode = node.node("x");
-        var yNode = node.node("y");
+        ConfigurationNode xNode = node.node("x");
+        ConfigurationNode yNode = node.node("y");
 
         if (yNode.virtual()) yNode = node.node("z"); // fallback to z if y is not present
 

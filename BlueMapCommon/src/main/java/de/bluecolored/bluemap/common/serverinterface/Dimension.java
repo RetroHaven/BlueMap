@@ -25,12 +25,13 @@
 package de.bluecolored.bluemap.common.serverinterface;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public enum Dimension {
 
-    OVERWORLD ("Overworld", Path.of("")),
-    NETHER ("Nether", Path.of("DIM-1")),
-    END ("End", Path.of("DIM1"));
+    OVERWORLD ("Overworld", Paths.get("")),
+    NETHER ("Nether", Paths.get("DIM-1")),
+    END ("End", Paths.get("DIM1"));
 
     private final String name;
     private final Path dimensionSubPath;

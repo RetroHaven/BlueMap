@@ -28,6 +28,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -145,13 +146,13 @@ public class BlueMapService implements Closeable {
                 id = this.serverInterface.getWorld(worldFolder)
                         .flatMap(ServerWorld::getId)
                         .orElse(UUID.randomUUID().toString());
-                Files.writeString(idFile, id, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                Files.write(idFile, id.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
                 worldIds.put(worldFolder, id);
                 return id;
             }
 
-            id = Files.readString(idFile);
+            id = new String(Files.readAllBytes(idFile), StandardCharsets.UTF_8);
             worldIds.put(worldFolder, id);
             return id;
         }

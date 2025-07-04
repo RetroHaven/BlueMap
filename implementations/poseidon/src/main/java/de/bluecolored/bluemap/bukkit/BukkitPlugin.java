@@ -49,6 +49,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -78,7 +79,7 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
         this.onlinePlayerList = Collections.synchronizedList(new ArrayList<>());
 
         this.eventForwarder = new EventForwarder();
-        this.pluginInstance = new Plugin("bukkit", this);
+        this.pluginInstance = new Plugin("poseidon", this);
         this.commands = new BukkitCommands(this.pluginInstance);
 
         this.worlds = Caffeine.newBuilder()
@@ -217,7 +218,7 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface, Listene
 
     @Override
     public Optional<Path> getModsFolder() {
-        return Optional.of(Path.of("mods")); // in case this is a Bukkit/Forge hybrid
+        return Optional.of(Paths.get("mods")); // in case this is a Bukkit/Forge hybrid
     }
 
     public Plugin getPlugin() {

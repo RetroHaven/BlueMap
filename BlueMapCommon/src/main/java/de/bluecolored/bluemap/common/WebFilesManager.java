@@ -37,6 +37,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -132,9 +133,9 @@ public class WebFilesManager {
 
             // set version in index.html
             Path indexFile = webRoot.resolve("index.html");
-            String indexContent = Files.readString(indexFile);
+            String indexContent = new String(Files.readAllBytes(indexFile), StandardCharsets.UTF_8);
             indexContent = indexContent.replace("%version%", BlueMap.VERSION);
-            Files.writeString(indexFile, indexContent);
+            Files.write(indexFile, indexContent.getBytes(StandardCharsets.UTF_8));
 
         } finally {
             if (!tempFile.delete()) {

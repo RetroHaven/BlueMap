@@ -92,7 +92,7 @@ public class Multipart {
             in.endArray();
 
             Multipart result = new Multipart();
-            result.parts = parts.toArray(VariantSet[]::new);
+            result.parts = parts.toArray(new VariantSet[0]);
             return result;
         }
 

@@ -28,6 +28,7 @@ import com.flowpowered.math.vector.Vector3d;
 import de.bluecolored.bluemap.common.serverinterface.Gamemode;
 import de.bluecolored.bluemap.common.serverinterface.Player;
 import de.bluecolored.bluemap.common.plugin.text.Text;
+import de.bluecolored.bluemap.common.serverinterface.ServerWorld;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -150,7 +151,7 @@ public class BukkitPlayer implements Player {
         this.blockLight = player.getLocation().getBlock().getLightLevel();
 
         try {
-            var world = BukkitPlugin.getInstance().getWorld(player.getWorld());
+            ServerWorld world = BukkitPlugin.getInstance().getWorld(player.getWorld());
             this.world = BukkitPlugin.getInstance().getPlugin().getBlueMap().getWorldId(world.getSaveFolder());
         } catch (IOException | NullPointerException e) { // NullPointerException -> the plugin isn't fully loaded
             this.world = "unknown";

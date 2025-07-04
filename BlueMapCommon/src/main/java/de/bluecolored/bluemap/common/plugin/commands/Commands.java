@@ -760,7 +760,7 @@ public class Commands<S> {
         CommandSource source = commandSourceInterface.apply(context.getSource());
 
         Optional<String> ref = getOptionalArgument(context,"task-ref", String.class);
-        if (ref.isEmpty()) {
+        if (!ref.isPresent()) {
             plugin.getRenderManager().removeAllRenderTasks();
             source.sendMessage(Text.of(TextColor.GREEN, "All tasks cancelled!"));
             source.sendMessage(Text.of(TextColor.GRAY, "(Note, that an already started task might not be removed immediately. Some tasks needs to do some tidying-work first)"));
@@ -769,7 +769,7 @@ public class Commands<S> {
 
         Optional<RenderTask> task = helper.getTaskForRef(ref.get());
 
-        if (task.isEmpty()) {
+        if (!task.isPresent()) {
             source.sendMessage(Text.of(TextColor.RED, "There is no task with this reference '" + ref.get() + "'!"));
             return 0;
         }

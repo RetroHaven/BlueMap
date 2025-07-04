@@ -78,7 +78,7 @@ public class WebAppImpl implements WebApp {
     }
 
     @Override
-    @Deprecated(forRemoval = true)
+    @Deprecated()
     public String createImage(BufferedImage image, String path) throws IOException {
         path = path.replaceAll("[^a-zA-Z0-9_.\\-/]", "_");
 
@@ -86,7 +86,7 @@ public class WebAppImpl implements WebApp {
         String separator = webRoot.getFileSystem().getSeparator();
 
         Path imageRootFolder = webRoot.resolve(IMAGE_ROOT_PATH);
-        Path imagePath = imageRootFolder.resolve(Path.of(path.replace("/", separator) + ".png")).toAbsolutePath();
+        Path imagePath = imageRootFolder.resolve(Paths.get(path.replace("/", separator) + ".png")).toAbsolutePath();
 
         FileHelper.createDirectories(imagePath.getParent());
         Files.deleteIfExists(imagePath);

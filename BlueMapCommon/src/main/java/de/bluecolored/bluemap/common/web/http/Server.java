@@ -32,6 +32,8 @@ import java.net.SocketAddress;
 import java.nio.channels.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
 public abstract class Server extends Thread implements Closeable, Runnable {
 
@@ -60,7 +62,13 @@ public abstract class Server extends Thread implements Closeable, Runnable {
         Logger.global.logInfo("WebServer started.");
         while (this.selector.isOpen()) {
             try {
-                this.selector.select(this::selection);
+                int unused = this.selector.select();
+                Set<SelectionKey> keys = this.selector.selectedKeys();
+                for (Iterator<SelectionKey> iterator = keys.iterator(); iterator.hasNext(); ) {
+                    SelectionKey key = iterator.next();
+                    iterator.remove();
+                    this.selection(key);
+                }
             } catch (IOException e) {
                 Logger.global.logDebug("Failed to select channel: " + e);
             } catch (ClosedSelectorException ignore) {}

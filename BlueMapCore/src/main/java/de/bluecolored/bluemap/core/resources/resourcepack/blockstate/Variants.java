@@ -105,7 +105,7 @@ public class Variants {
 
             Variants result = new Variants();
             result.defaultVariant = defaultVariant;
-            result.variants = variants.toArray(VariantSet[]::new);
+            result.variants = variants.toArray(new VariantSet[0]);
             return result;
         }
 

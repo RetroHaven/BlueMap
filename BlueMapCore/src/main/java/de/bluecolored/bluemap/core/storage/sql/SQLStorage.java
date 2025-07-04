@@ -676,7 +676,7 @@ public abstract class SQLStorage extends Storage {
 
     public static SQLStorage create(SQLStorageSettings settings) throws Exception {
         String dbUrl = settings.getConnectionUrl();
-        String provider = dbUrl.strip().split(":", 3)[1];
+        String provider = dbUrl.replaceAll("\\s+$", "").split(":", 3)[1];
         return DialectType.getStorage(provider,settings);
     }
 

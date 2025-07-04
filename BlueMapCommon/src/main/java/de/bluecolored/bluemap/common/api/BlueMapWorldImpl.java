@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -67,7 +68,10 @@ public class BlueMapWorldImpl implements BlueMapWorld {
         return unpack(plugin).getMaps().values().stream()
                 .filter(map -> map.getWorld().equals(unpack(world)))
                 .map(map -> new BlueMapMapImpl(unpack(plugin), map, this))
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toSet(),
+                        Collections::unmodifiableSet
+                ));
     }
 
     private <T> T unpack(WeakReference<T> ref) {

@@ -89,7 +89,10 @@ public class BlueMapAPIImpl extends BlueMapAPI {
                     }
                 })
                 .filter(Objects::nonNull)
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toSet(),
+                        Collections::unmodifiableSet
+                ));
     }
 
     @Override
@@ -100,7 +103,10 @@ public class BlueMapAPIImpl extends BlueMapAPI {
         return worlds.values().stream()
                 .map(world -> getWorld(world).orElse(null))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toSet(),
+                        Collections::unmodifiableSet
+                ));
     }
 
     @Override

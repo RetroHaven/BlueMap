@@ -45,6 +45,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -182,17 +183,17 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface {
             return getWorld((Path) world);
 
         if (world instanceof String) {
-            var serverWorld = Bukkit.getServer().getWorld((String) world);
+            org.bukkit.World serverWorld = Bukkit.getServer().getWorld((String) world);
             if (serverWorld != null) world = serverWorld;
         }
 
         if (world instanceof String) {
-            var serverWorld = Bukkit.getServer().getWorld(new Key((String) world).getValue());
+            org.bukkit.World serverWorld = Bukkit.getServer().getWorld(new Key((String) world).getValue());
             if (serverWorld != null) world = serverWorld;
         }
 
         if (world instanceof UUID) {
-            var serverWorld = Bukkit.getServer().getWorld((UUID) world);
+            org.bukkit.World serverWorld = Bukkit.getServer().getWorld((UUID) world);
             if (serverWorld != null) world = serverWorld;
         }
 
@@ -213,7 +214,7 @@ public class BukkitPlugin extends JavaPlugin implements ServerInterface {
 
     @Override
     public Optional<Path> getModsFolder() {
-        return Optional.of(Path.of("mods")); // in case this is a Bukkit/Forge hybrid
+        return Optional.of(Paths.get("mods")); // in case this is a Bukkit/Forge hybrid
     }
 
     public Plugin getPlugin() {

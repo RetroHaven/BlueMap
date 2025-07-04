@@ -526,7 +526,7 @@ public class Plugin implements ServerEventListener {
                         serverInterface,
                         getConfigs().getPluginConfig(),
                         map.getWorldId(),
-                        Predicate.not(pluginState::isPlayerHidden)
+                        ((Predicate<UUID>) pluginState::isPlayerHidden).negate()
                 );
                 try (
                         OutputStream out = map.getStorage().writeMeta(map.getId(), BmMap.META_FILE_PLAYERS);

@@ -77,7 +77,7 @@ public class HttpRequest {
             // read headers
             while (!headerComplete) {
                 if (!writeLine()) return false;
-                String line = lineBuffer.toString().stripTrailing();
+                String line = lineBuffer.toString().replaceAll("\\s+$", ""); // .trim() also removes leading spaces, which isn't the original behaviour.
                 lineBuffer.setLength(0);
 
                 if (line.isEmpty()) {

@@ -78,7 +78,7 @@ public class HttpResponse implements Closeable {
         }
 
         // send data chunked
-        if (dataBuffer == null) dataBuffer = ByteBuffer.allocate(1024 + 200).flip(); // 200 extra bytes
+        if (dataBuffer == null) dataBuffer = (ByteBuffer) ByteBuffer.allocate(1024 + 200).flip(); // 200 extra bytes
         while (true) {
             if (dataBuffer.hasRemaining()) channel.write(dataBuffer);
             if (dataBuffer.hasRemaining()) return false;
@@ -118,7 +118,7 @@ public class HttpResponse implements Closeable {
         return true;
     }
 
-    private void writeHeaderData() {
+    private void writeHeaderData() throws IOException {
         ByteArrayOutputStream headerDataOut = new ByteArrayOutputStream();
 
         if (hasData()){
@@ -127,16 +127,16 @@ public class HttpResponse implements Closeable {
             headers.put("Content-Length", new HttpHeader("Content-Length", "0"));
         }
 
-        headerDataOut.writeBytes((version + " " + statusCode.getCode() + " " + statusCode.getMessage() + "\r\n")
+        headerDataOut.write((version + " " + statusCode.getCode() + " " + statusCode.getMessage() + "\r\n")
                 .getBytes(StandardCharsets.UTF_8));
         for (HttpHeader header : headers.values()){
-            headerDataOut.writeBytes((header.getKey() + ": " + header.getValue() + "\r\n")
+            headerDataOut.write((header.getKey() + ": " + header.getValue() + "\r\n")
                     .getBytes(StandardCharsets.UTF_8));
         }
-        headerDataOut.writeBytes(("\r\n")
+        headerDataOut.write(("\r\n")
                 .getBytes(StandardCharsets.UTF_8));
 
-        headerData = ByteBuffer.allocate(headerDataOut.size())
+        headerData = (ByteBuffer) ByteBuffer.allocate(headerDataOut.size())
                 .put(headerDataOut.toByteArray())
                 .flip();
     }

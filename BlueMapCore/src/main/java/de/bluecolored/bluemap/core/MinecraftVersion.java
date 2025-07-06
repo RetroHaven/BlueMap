@@ -156,7 +156,7 @@ public class MinecraftVersion implements Comparable<MinecraftVersion> {
     }
 
     public enum MinecraftEra {
-        BETA ("b"), // we prevent spaces in filenames when possible
+        BETA ("b"), // we prevent spaces in filenames/stuff when possible
         RELEASE ("");
 
         private String prefix;

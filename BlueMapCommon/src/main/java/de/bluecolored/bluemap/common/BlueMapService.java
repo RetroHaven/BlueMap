@@ -365,26 +365,44 @@ public class BlueMapService implements Closeable {
             } catch (IOException ex) {
                 throw new ConfigurationException(
                         "BlueMap failed to create this folder:\n" +
-                        resourcePackFolder + "\n" +
-                        "Does BlueMap has sufficient permissions?",
+                                resourcePackFolder + "\n" +
+                                "Does BlueMap has sufficient permissions?",
                         ex);
+            }
+
+            MinecraftVersion mc116 = new MinecraftVersion(1, 16);
+            Path programmerArtPath = configs.getCoreConfig().getData().resolve("programmer-art-" + mc116.getResource().getVersion().getVersionString() + ".zip");;
+            if (minecraftVersion.compareTo(new MinecraftVersion(1, 14)) == -1) {
+                defaultResourceFile = configs.getCoreConfig().getData().resolve("minecraft-client-" + mc116.getResource().getVersion().getVersionString() + ".jar");
             }
 
             if (!Files.exists(defaultResourceFile)) {
                 if (configs.getCoreConfig().isAcceptDownload()) {
-                    //download file
-                    try {
-                        Logger.global.logInfo("Downloading " + minecraftVersion.getResource().getClientUrl() + " to " + defaultResourceFile + " ...");
+                    if (minecraftVersion.compareTo(new MinecraftVersion(1, 14)) == -1) {
+                        Logger.global.logInfo("Downloading " + mc116.getResource().getClientUrl() + " to " + defaultResourceFile + " ...");
+                        try {
+                            FileHelper.createDirectories(defaultResourceFile.getParent());
+                            Path tempResourceFile = defaultResourceFile.getParent().resolve(defaultResourceFile.getFileName() + ".filepart");
+                            Files.deleteIfExists(tempResourceFile);
+                            FileUtils.copyURLToFile(new URL(mc116.getResource().getClientUrl()), tempResourceFile.toFile(), 10000, 10000);
+                            FileHelper.move(tempResourceFile, defaultResourceFile);
+                        } catch (IOException ex) {
+                            throw new ConfigurationException("Failed to download resources!", ex);
+                        }
+                    } else {
+                        //download file
+                        try {
+                            Logger.global.logInfo("Downloading " + minecraftVersion.getResource().getClientUrl() + " to " + defaultResourceFile + " ...");
 
-                        FileHelper.createDirectories(defaultResourceFile.getParent());
-                        Path tempResourceFile = defaultResourceFile.getParent().resolve(defaultResourceFile.getFileName() + ".filepart");
-                        Files.deleteIfExists(tempResourceFile);
-                        FileUtils.copyURLToFile(new URL(minecraftVersion.getResource().getClientUrl()), tempResourceFile.toFile(), 10000, 10000);
-                        FileHelper.move(tempResourceFile, defaultResourceFile);
-                    } catch (IOException ex) {
-                        throw new ConfigurationException("Failed to download resources!", ex);
+                            FileHelper.createDirectories(defaultResourceFile.getParent());
+                            Path tempResourceFile = defaultResourceFile.getParent().resolve(defaultResourceFile.getFileName() + ".filepart");
+                            Files.deleteIfExists(tempResourceFile);
+                            FileUtils.copyURLToFile(new URL(minecraftVersion.getResource().getClientUrl()), tempResourceFile.toFile(), 10000, 10000);
+                            FileHelper.move(tempResourceFile, defaultResourceFile);
+                        } catch (IOException ex) {
+                            throw new ConfigurationException("Failed to download resources!", ex);
+                        }
                     }
-
                 } else {
                     throw new MissingResourcesException();
                 }
@@ -443,6 +461,20 @@ public class BlueMapService implements Closeable {
                 }
 
                 resourcePackRoots.add(resourceExtensionsFile);
+                if (minecraftVersion.compareTo(new MinecraftVersion(1, 14)) == -1 && !Files.exists(programmerArtPath)) {
+                    String programmerArtURL = "https://resources.download.minecraft.net/fa/fa089547baae39b6e955f05520c8f4a857a2b508"; // programmer art from 1.16.5
+                    Logger.global.logInfo("Downloading " + programmerArtURL + " to " + programmerArtPath + " for old textures...");
+                    try {
+                        FileHelper.createDirectories(programmerArtPath.getParent());
+                        Path tempResourceFile = programmerArtPath.getParent().resolve(programmerArtPath.getFileName() + ".filepart");
+                        Files.deleteIfExists(tempResourceFile);
+                        FileUtils.copyURLToFile(new URL(programmerArtURL), tempResourceFile.toFile(), 10000, 10000);
+                        FileHelper.move(tempResourceFile, programmerArtPath);
+                    } catch (IOException ex) {
+                        throw new ConfigurationException("Failed to download resources!", ex);
+                    }
+                    resourcePackRoots.add(programmerArtPath);
+                }
                 resourcePackRoots.add(defaultResourceFile);
 
                 resourcePack.loadResources(resourcePackRoots);

@@ -26,17 +26,10 @@ fun String.runCommand(): String = ProcessBuilder(split("\\s(?=(?:[^'\"`]*(['\"`]
         inputStream.bufferedReader().readText().trim()
     }
 
-val gitHash = "git rev-parse --verify HEAD".runCommand()
-val clean = "git status --porcelain".runCommand().isEmpty()
-val lastTag = "git describe --tags --abbrev=0".runCommand()
-val lastVersion = lastTag.substring(1) // remove the leading 'v'
-val commits = "git rev-list --count $lastTag..HEAD".runCommand()
-println("Git hash: $gitHash" + if (clean) "" else " (dirty)")
+var gitHash = "dev"
 
 group = "de.bluecolored.bluemap.api"
-version = lastVersion +
-        (if (commits == "0") "" else "-$commits") +
-        (if (clean) "" else "-dirty")
+version = "dev"
 
 println("Version: $version")
 
@@ -96,10 +89,10 @@ tasks.processResources {
         include("de/bluecolored/bluemap/api/version.json")
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
-        expand (
+        expand ( mapOf(
             "version" to project.version,
-            "gitHash" to gitHash + if (clean) "" else " (dirty)"
-        )
+            "gitHash" to gitHash
+        ))
     }
 }
 

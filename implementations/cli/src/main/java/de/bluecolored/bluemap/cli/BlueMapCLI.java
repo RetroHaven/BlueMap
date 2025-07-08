@@ -27,10 +27,7 @@ package de.bluecolored.bluemap.cli;
 import de.bluecolored.bluemap.common.BlueMapConfigProvider;
 import de.bluecolored.bluemap.common.BlueMapService;
 import de.bluecolored.bluemap.common.MissingResourcesException;
-import de.bluecolored.bluemap.common.config.BlueMapConfigs;
-import de.bluecolored.bluemap.common.config.ConfigurationException;
-import de.bluecolored.bluemap.common.config.CoreConfig;
-import de.bluecolored.bluemap.common.config.WebserverConfig;
+import de.bluecolored.bluemap.common.config.*;
 import de.bluecolored.bluemap.common.plugin.RegionFileWatchService;
 import de.bluecolored.bluemap.common.rendermanager.MapUpdateTask;
 import de.bluecolored.bluemap.common.rendermanager.RenderManager;
@@ -58,6 +55,7 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -196,7 +194,7 @@ public class BlueMapCLI implements ServerInterface {
         routingRequestHandler.register(".*", new FileRequestHandler(config.getWebroot()));
 
         // map route
-        for (var mapConfigEntry : blueMap.getConfigs().getMapConfigs().entrySet()) {
+        for (Map.Entry<String, MapConfig> mapConfigEntry : blueMap.getConfigs().getMapConfigs().entrySet()) {
             Storage storage = blueMap.getStorage(mapConfigEntry.getValue().getStorage());
 
             routingRequestHandler.register(
@@ -211,7 +209,7 @@ public class BlueMapCLI implements ServerInterface {
         if (config.getLog().getFile() != null) {
             ZonedDateTime zdt = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
             webLoggerList.add(Logger.file(
-                    Path.of(String.format(config.getLog().getFile(), zdt)),
+                    Paths.get(String.format(config.getLog().getFile(), zdt)),
                     config.getLog().isAppend()
             ));
         }
@@ -300,7 +298,7 @@ public class BlueMapCLI implements ServerInterface {
             }
 
             if (cmd.hasOption("l")) {
-                Logger.global.put(Logger.file(Path.of(cmd.getOptionValue("l")), cmd.hasOption("a")));
+                Logger.global.put(Logger.file(Paths.get(cmd.getOptionValue("l")), cmd.hasOption("a")));
             }
 
             //help
@@ -316,9 +314,9 @@ public class BlueMapCLI implements ServerInterface {
             }
 
             //config folder
-            cli.configFolder = Path.of("config");
+            cli.configFolder = Paths.get("config");
             if (cmd.hasOption("c")) {
-                cli.configFolder = Path.of(cmd.getOptionValue("c"));
+                cli.configFolder = Paths.get(cmd.getOptionValue("c"));
                 FileHelper.createDirectories(cli.configFolder);
             }
 
@@ -334,14 +332,14 @@ public class BlueMapCLI implements ServerInterface {
                 }
             }
 
-            BlueMapConfigs configs = new BlueMapConfigs(cli, Path.of("data"), Path.of("web"), false);
+            BlueMapConfigs configs = new BlueMapConfigs(cli, Paths.get("data"), Paths.get("web"), false);
 
             //apply new file-logger config
             CoreConfig coreConfig = configs.getCoreConfig();
             if (coreConfig.getLog().getFile() != null) {
                 ZonedDateTime zdt = ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
                 Logger.global.put(Logger.file(
-                        Path.of(String.format(coreConfig.getLog().getFile(), zdt)),
+                        Paths.get(String.format(coreConfig.getLog().getFile(), zdt)),
                         coreConfig.getLog().isAppend()
                 ));
             }
@@ -392,7 +390,7 @@ public class BlueMapCLI implements ServerInterface {
             if (blueMap != null) {
                 BlueMapConfigProvider configProvider = blueMap.getConfigs();
                 if (configProvider instanceof BlueMapConfigs) {
-                    Logger.global.logWarning("Please check: " + ((BlueMapConfigs) configProvider).getConfigManager().findConfigPath(Path.of("core")).toAbsolutePath().normalize());
+                    Logger.global.logWarning("Please check: " + ((BlueMapConfigs) configProvider).getConfigManager().findConfigPath(Paths.get("core")).toAbsolutePath().normalize());
                 }
             }
             System.exit(2);
